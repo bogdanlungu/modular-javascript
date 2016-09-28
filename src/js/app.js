@@ -1,67 +1,77 @@
-// Initializer module
-// Register all the available modules in the application and store them in an array
-let ApplicationInitModule = function() {
-    let registeredModules = [];
-
+// Globa data with the html data
+var GlobalData = (function() {
+    var headerContainerDef = {
+        sectionHTML: '<div class="logo_titleClass" >' +
+            '<a href=""><img src="img/logo.png" alt="Company Logo" style="max-height:100%;"></a>' +
+            '<div class="siteTitleClass">Images Inc.</div>' +
+            '</div>' +
+            '<nav role="navigation" itemscope itemtype="https://schema.org/SiteNavigationElement">' +
+            '<h1 class="hiddenClass">Main Navigation</h1>' +
+            '<ul class="navmenuClass" >' +
+            '<li><a href="#" class="active">Home</a></li>' +
+            '<li><a href="#">Our Company</a></li>' +
+            '<li><a href="#">Pricing</a></li>' +
+            '<li><a href="#">Contact Us</a></li>' + '</ul>' +
+            '</nav>'
+    };
+    var footerContainerDef = {
+        sectionHTML: '<div>' + '<a href="#">Latest News</a>' +
+            '</div>' + '<div>' + '<a href="#">Services</a>' +
+            '</div>' + '<div>' + '<a href="#">Support</a>' +
+            '</div>'
+    };
     return {
-        registerModule: function(module) {
-            registeredModules.push(module); // store the module in the array
+        getHeaderHTMLTxt: function() {
+            return headerContainerDef.sectionHTML;
         },
-        getAppModulesCount: function() {
-            return registeredModules.length;
+        getFooterHTMLTxt: function() {
+            return footerContainerDef.sectionHTML;
+        }
+    };
+})();
+
+// The age updater module
+var PageUpdater = (function() {
+
+    // private function
+    var insertHTMLTxt = function(containerID, newStructure) {
+        var theContainer = document.getElementById(containerID);
+        theContainer.innerHTML = newStructure;
+    };
+
+    // private function
+    var applyElementCSS = function(elementID, className) {
+        var theElement = document.getElementById(elementID);
+        theElement.className = className;
+    };
+    return {
+        updateElement: function(elemID, htmlTxt) {
+            insertHTMLTxt(elemID, htmlTxt);
         },
-        removeRegisteredModule: function(index) {
-            registeredModules.splice(index, 1);
-        },
-        initializeAllModules: function() {
-            for (let module in registeredModules) {
-                registeredModules[module].initialize();
+
+        updateElementClass: function(elemId, className) {
+            if (!className) {
+                console.error(
+                    'No class name has been provided, exiting module!'
+                );
             }
-        }
-    };
-}();
-
-// mediator module between ApplicationInitModule and testModule1 and testModule2
-let GlobalApp = (function() {
-    let registerModule = ApplicationInitModule.registerModule;
-    return {
-        registerModule: registerModule
-    };
-})();
-
-let testModule1 = (function() {
-    let self = {};
-    let moduleName = "Module 1"; // private variable accessed in the initialize method via closure
-
-    self.initialize = function() {
-        console.log("Testmodule1 has been initialized!");
-        console.log("module name is: " + moduleName); // log the moduleName
-    };
-
-    (function() {
-        GlobalApp.registerModule(self);   // register the module inside the module definition
-    })();
-
-    return {   // return an anonymous object
-        initialize: self.initialize,
-        getName: function() {
-            return moduleName;
+            applyElementCSS(elemId, className);
         }
     };
 })();
 
-let testModule2 = (function() {
-    let moduleName = 'Module 2';
+PageUpdater.updateElement("headerContainer", GlobalData.getHeaderHTMLTxt());
+PageUpdater.updateElement("footerContainer", GlobalData.getFooterHTMLTxt());
 
-    function initialize() {
-        console.log("Testmodule2 has been initialized!");
+
+// Augment the GlobalData module with some new method
+var GlobalData = (function(coreModule) {
+    let someData = "Augment the module with some new info";
+    coreModule.newMethod = () => {
+        return someData;
     }
-    return {
-        initialize: initialize
-    };
-})();
-GlobalApp.registerModule(testModule2); // register the module outside the module definition
 
+    return coreModule;
+})(GlobalData);
 
-// initiliaze the registered modules
-ApplicationInitModule.initializeAllModules();
+console.log(GlobalData.newMethod());

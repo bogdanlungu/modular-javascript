@@ -1,106 +1,62 @@
-(function() { "use strict";
+(function() { 'use strict';
 
-// Initializer module
-// Register all the available modules in the application and store them in an array
-var ApplicationInitModule = function () {
-    var registeredModules = [];
-
+// Globa data with the html data
+var GlobalData = function () {
+    var headerContainerDef = {
+        sectionHTML: '<div class="logo_titleClass" >' + '<a href=""><img src="img/logo.png" alt="Company Logo" style="max-height:100%;"></a>' + '<div class="siteTitleClass">Images Inc.</div>' + '</div>' + '<nav role="navigation" itemscope itemtype="https://schema.org/SiteNavigationElement">' + '<h1 class="hiddenClass">Main Navigation</h1>' + '<ul class="navmenuClass" >' + '<li><a href="#" class="active">Home</a></li>' + '<li><a href="#">Our Company</a></li>' + '<li><a href="#">Pricing</a></li>' + '<li><a href="#">Contact Us</a></li>' + '</ul>' + '</nav>'
+    };
+    var footerContainerDef = {
+        sectionHTML: '<div>' + '<a href="#">Latest News</a>' + '</div>' + '<div>' + '<a href="#">Services</a>' + '</div>' + '<div>' + '<a href="#">Support</a>' + '</div>'
+    };
     return {
-        registerModule: function registerModule(module) {
-            registeredModules.push(module); // store the module in the array
+        getHeaderHTMLTxt: function getHeaderHTMLTxt() {
+            return headerContainerDef.sectionHTML;
         },
-        getAppModulesCount: function getAppModulesCount() {
-            return registeredModules.length;
-        },
-        removeRegisteredModule: function removeRegisteredModule(index) {
-            registeredModules.splice(index, 1);
-        },
-        initializeAllModules: function initializeAllModules() {
-            for (var module in registeredModules) {
-                registeredModules[module].initialize();
-            }
+        getFooterHTMLTxt: function getFooterHTMLTxt() {
+            return footerContainerDef.sectionHTML;
         }
     };
 }();
 
-// mediator module between ApplicationInitModule and testModule1 and testModule2
-var GlobalApp = function () {
-    var registerModule = ApplicationInitModule.registerModule;
-    return {
-        registerModule: registerModule
-    };
-}();
+// The age updater module
+var PageUpdater = function () {
 
-var testModule1 = function () {
-    var self = {};
-    var moduleName = "Module 1"; // private variable accessed in the initialize method via closure
-
-    self.initialize = function () {
-        console.log("Testmodule1 has been initialized!");
-        console.log("module name is: " + moduleName); // log the moduleName
-    };
-
-    (function () {
-        GlobalApp.registerModule(self); // register the module inside the module definition
-    })();
-
-    return { // return an anonymous object
-        initialize: self.initialize,
-        getName: function getName() {
-            return moduleName;
-        }
-    };
-}();
-
-var testModule2 = function () {
-    var moduleName = 'Module 2';
-
-    function initialize() {
-        console.log("Testmodule2 has been initialized!");
-    }
-    return {
-        initialize: initialize
-    };
-}();
-GlobalApp.registerModule(testModule2); // register the module outside the module definition
-
-
-// initiliaze the registered modules
-ApplicationInitModule.initializeAllModules();
-'use strict';
-
-var updatePage = function () {
-
-    // private function - update the html based on element's id
+    // private function
     var insertHTMLTxt = function insertHTMLTxt(containerID, newStructure) {
-
         var theContainer = document.getElementById(containerID);
         theContainer.innerHTML = newStructure;
     };
 
-    // another private function - add a css class the the element with the id..
+    // private function
     var applyElementCSS = function applyElementCSS(elementID, className) {
-
         var theElement = document.getElementById(elementID);
         theElement.className = className;
     };
-
     return {
-
-        // returned methods for the anonymous object
         updateElement: function updateElement(elemID, htmlTxt) {
-
             insertHTMLTxt(elemID, htmlTxt);
         },
 
-        // method to update css
         updateElementClass: function updateElementClass(elemId, className) {
-
             if (!className) {
-
                 console.error('No class name has been provided, exiting module!');
             }
             applyElementCSS(elemId, className);
         }
     };
-}(); }());
+}();
+
+PageUpdater.updateElement("headerContainer", GlobalData.getHeaderHTMLTxt());
+PageUpdater.updateElement("footerContainer", GlobalData.getFooterHTMLTxt());
+
+// Augment the GlobalData module with some new method
+var GlobalData = function (coreModule) {
+    var someData = "Augment the module with some new info";
+    coreModule.newMethod = function () {
+        return someData;
+    };
+
+    return coreModule;
+}(GlobalData);
+
+console.log(GlobalData.newMethod()); }());
